@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/toolbar"
+        app:title="@string/app_name"
+        android:minHeight="?attr/actionBarSize"
+        app:titleTextColor="@color/cardview_light_background"
+        android:background="#2196F3"/>
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:id="@+id/drawer"
+        tools:openDrawer="start"
+        android:fitsSystemWindows="false">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#F0F0F0">
+
+    <!-- Energy Monitor Title -->
+    <TextView
+        android:id="@+id/energy_monitor_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Energy Monitor"
+        android:textSize="30sp"
+        android:layout_centerHorizontal="true"
+        android:textStyle="bold"
+        android:layout_marginTop="20dp"/>
+
+    <!-- Available Kilowatt TextView -->
+    <TextView
+        android:id="@+id/available_kilowatt_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Available Kilowatt"
+        android:textSize="20sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/energy_monitor_title"
+        android:layout_marginTop="20dp"/>
+
+    <!-- KWH Value TextView -->
+    <TextView
+        android:id="@+id/kwh_value_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="KWH Value"
+        android:textSize="20sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/available_kilowatt_textview"
+        android:layout_marginTop="20dp"/>
+
+    <!-- Instantaneous and Cumulative Buttons -->
+    <LinearLayout
+        android:id="@+id/buttons_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/kwh_value_textview"
+        android:layout_marginTop="20dp">
+
+        <Button
+            android:id="@+id/instantaneous_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Instantaneous"/>
+
+        <Button
+            android:id="@+id/cumulative_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Cumulative"/>
+
+    </LinearLayout>
+
+    <!-- Graph View -->
+    <View
+        android:id="@+id/graph_view"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@id/buttons_layout"
+        android:background="#FFFFFF"/>
+
+    <!-- Current Power Consumption TextView -->
+    <TextView
+        android:id="@+id/current_power_consumption_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current Power Consumption"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/graph_view"
+        android:layout_marginTop="20dp"/>
+
+    <!-- Power Used Today TextView -->
+    <TextView
+        android:id="@+id/power_used_today_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Power Used Today"
+        android:textSize="20sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/current_power_consumption_textview"
+        android:layout_marginTop="20dp"/>
+
+    <!-- Total Consumption TextView -->
+    <TextView
+        android:id="@+id/total_consumption_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Consumption"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/power_used_today_textview"
+        android:layout_marginTop="20dp"/>
+
+    <!-- Total Power Consumption TextView -->
+    <TextView
+        android:id="@+id/total_power_consumption_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Power Consumption"
+        android:textSize="20sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/total_consumption_textview"
+        android:layout_marginTop="20dp"/>
+
+</RelativeLayout>
+
+
+
+<com.google.android.material.navigation.NavigationView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:itemTextAppearance="@style/DrawerTheme"
+            app:theme="@style/DrawerTheme"
+            android:id="@+id/navmenu"
+            app:menu="@menu/iconmenu"
+            android:fitsSystemWindows="true"
+            app:headerLayout="@layout/header"
+            android:backgroundTint="#F1EEEE"
+            app:itemBackground="@drawable/nav_item_background"
+            app:itemTextColor="#525557"
+            app:itemIconTint="#525557"
+            android:layout_gravity="start"/>
+
+
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+
+</RelativeLayout>
