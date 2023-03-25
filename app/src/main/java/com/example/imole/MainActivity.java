@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  {
 
     NavigationView nav;
     ActionBarDrawerToggle toggle;
@@ -84,11 +84,13 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case R.id.menu_contol :
+                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new controlFragment()).commit();
                         Toast.makeText(getApplicationContext(),"Call Panel is Open",Toast.LENGTH_LONG).show();
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
 
                     case R.id.menu_setting :
+                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new settingsFragment()).commit();
                         Toast.makeText(getApplicationContext(),"Setting Panel is Open",Toast.LENGTH_LONG).show();
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
