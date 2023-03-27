@@ -4,10 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.view.MenuItem;
@@ -25,6 +29,11 @@ public class power_control extends AppCompatActivity  {
 
 
     private final String phoneNumber = "+2349159774476"; // Replace with your GSM module phone number
+
+    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
+
+    private String message = "";
+
 
     NavigationView nav;
     ActionBarDrawerToggle toggle;
@@ -116,7 +125,13 @@ public class power_control extends AppCompatActivity  {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // Send SMS to turn on or off load 1
-                sendSMS(isChecked ? "Load1on" : "Load1off");
+                String message;
+                if (isChecked) {
+                    message = "load1on";
+                } else {
+                    message = "load1off";
+                }
+                sendSMS(phoneNumber, message);
             }
         });
 
@@ -124,35 +139,85 @@ public class power_control extends AppCompatActivity  {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // Send SMS to turn on or off load 2
-                sendSMS(isChecked ? "Load2on" : "Load2off");
-            }
+                String message;
+                if (isChecked) {
+                    message = "load2on";
+                } else {
+                    message = "load2off";
+                }
+                sendSMS(phoneNumber, message);            }
         });
 
         loadthreeS.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // Send SMS to turn on or off load 3
-                sendSMS(isChecked ? "Load3on" : "Load3off");
-            }
+                String message;
+                if (isChecked) {
+                    message = "load3on";
+                } else {
+                    message = "load3off";
+                }
+                sendSMS(phoneNumber, message);            }
         });
 
         loadfourS.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // Send SMS to turn on or off load 4
-                sendSMS(isChecked ? "Load4on" : "Load4off");
-            }
+                String message;
+                if (isChecked) {
+                    message = "load4on";
+                } else {
+                    message = "load4off";
+                }
+                sendSMS(phoneNumber, message);            }
         });
     }
     // Send SMS to GSM module
-    private void sendSMS(String message) {
+    private void sendSMS(String phoneNumber, String message) {
         try {
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
-            Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Permission is not granted
+                // Ask for permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.SEND_SMS},
+                        MY_PERMISSIONS_REQUEST_SEND_SMS);
+            } else {
+                // Permission has already been granted
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+                Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+            }
+
+
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "SMS failed, please try again.", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission was granted, send the SMS message
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+                } else {
+                    // Permission denied, show a toast message
+                    Toast.makeText(getApplicationContext(),
+                            "SMS failed, please try again.", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }
+    }
+
 }
