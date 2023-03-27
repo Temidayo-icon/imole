@@ -16,10 +16,7 @@
         app:titleTextColor="@color/cardview_light_background"
         android:background="#2196F3"/>
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+
 
     <androidx.drawerlayout.widget.DrawerLayout
         android:layout_width="match_parent"

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".power_control">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/toolbar"
+        app:title="@string/app_name"
+        android:minHeight="?attr/actionBarSize"
+        app:titleTextColor="@color/cardview_light_background"
+        android:background="#2196F3"/>
+
+
+
+
+
+
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:id="@+id/drawer"
+        tools:openDrawer="start"
+        android:fitsSystemWindows="false">
+
+
+
+
+
+        <include
+            android:id="@+id/header"
+            layout="@layout/header"
+            android:layout_below="@+id/toolbar"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#F0F0F0"
+            android:layout_below="@+id/toolbar">
+
+        <TextView
+            android:id="@+id/allofthelights"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ALL OF THE LIGHTS!!"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginTop="30dp"
+            android:layout_marginStart="8dp"
+
+            />
+
+        <!-- Load 1 -->
+        <RelativeLayout
+            android:id="@+id/load1_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="116dp">
+
+            <ImageView
+                android:id="@+id/load1_imageview"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentStart="true"
+                android:src="@drawable/logo"/>
+
+            <TextView
+                android:id="@+id/load1_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/load1_imageview"
+                android:text="Load 1"
+                android:textSize="18sp"
+                android:layout_marginTop="12dp"/>
+
+            <Switch
+                android:id="@+id/load1_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="12dp"/>
+
+        </RelativeLayout>
+
+        <!-- Load 2 -->
+        <RelativeLayout
+            android:id="@+id/load2_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/load1_layout"
+            android:layout_marginTop="16dp">
+
+            <ImageView
+                android:id="@+id/load2_imageview"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentStart="true"
+                android:src="@drawable/logo"/>
+
+            <TextView
+                android:id="@+id/load2_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/load2_imageview"
+                android:text="Load 2"
+                android:layout_marginTop="12dp"
+                android:textSize="18sp"/>
+
+            <Switch
+                android:id="@+id/load2_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="12dp"/>
+
+        </RelativeLayout>
+
+        <!-- Load 3 -->
+        <RelativeLayout
+            android:id="@+id/load3_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/load2_layout"
+            android:layout_marginTop="16dp">
+
+            <ImageView
+                android:id="@+id/load3_imageview"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentStart="true"
+                android:src="@drawable/logo"/>
+
+            <TextView
+                android:id="@+id/load3_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/load3_imageview"
+                android:text="Load 3"
+                android:layout_marginTop="12dp"
+                android:textSize="18sp"/>
+
+            <Switch
+                android:id="@+id/load3_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="12dp"/>
+
+        </RelativeLayout>
+
+        <!-- Load 4 -->
+        <RelativeLayout
+            android:id="@+id/load4_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/load3_layout"
+            android:layout_marginTop="16dp">
+
+            <ImageView
+                android:id="@+id/load4_imageview"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentStart="true"
+                android:src="@drawable/logo"/>
+
+            <TextView
+                android:id="@+id/load4_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/load4_imageview"
+                android:text="Load 4"
+                android:layout_marginTop="12dp"
+                android:textSize="18sp"/>
+
+            <Switch
+                android:id="@+id/load4_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="12dp"/>
+
+        </RelativeLayout>
+
+        </RelativeLayout>
+
+
+
+        <com.google.android.material.navigation.NavigationView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:itemTextAppearance="@style/DrawerTheme"
+            app:theme="@style/DrawerTheme"
+            android:id="@+id/navmenu"
+            app:menu="@menu/iconmenu"
+            android:fitsSystemWindows="true"
+            app:headerLayout="@layout/header"
+            android:backgroundTint="#F1EEEE"
+            app:itemBackground="@drawable/nav_item_background"
+            app:itemTextColor="#525557"
+            app:itemIconTint="#525557"
+            android:layout_gravity="start"/>
+
+
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+</RelativeLayout>

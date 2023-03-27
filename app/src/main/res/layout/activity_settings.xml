@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/background">
+    tools:context=".settings">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:titleTextColor="@color/white"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="-1dp"
+        android:text="@string/Meter">
+
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:id="@+id/drawer"
+        tools:openDrawer="start"
+        android:fitsSystemWindows="false">
+
+    <include
+        android:id="@+id/header"
+        layout="@layout/header"
+        android:layout_below="@+id/toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" />
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#F0F0F0">
+
+    <!-- Settings -->
+    <TextView
+        android:id="@+id/settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="8dp"
+       />
+
+    <!-- Power Purchased in KWH -->
+    <TextView
+        android:id="@+id/power_purchased"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="POWER PURCHASED IN KWH"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"
+        android:textSize="18sp"
+        android:layout_below="@id/settings"/>
+
+    <!-- Edit Text -->
+    <EditText
+        android:id="@+id/edit_text_kwh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter kilowatts purchased"
+        android:background="#fff"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_below="@id/power_purchased"/>
+
+    <!-- Threshold Power in KWH -->
+    <TextView
+        android:id="@+id/threshold_power"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="THRESHOLD POWER IN KWH"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"
+        android:textSize="18sp"
+        android:layout_below="@id/edit_text_kwh"/>
+
+    <!-- Edit Text -->
+    <EditText
+        android:id="@+id/edit_text_threshold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter threshold power in kwh"
+        android:background="#fff"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_below="@id/threshold_power"/>
+
+    <!-- Automatic Refresh -->
+    <TextView
+        android:id="@+id/automatic_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="DO TOU WANT AUTOMATIC REFRESH?"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_below="@id/edit_text_threshold"/>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayoutAutomaticRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#fff"
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/automatic_refresh">
+
+
+
+        <TextView
+            android:id="@+id/textViewAutomaticRefresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:textSize="18sp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="12dp"
+            android:text="Automatic Refresh"/>
+
+
+        <Switch
+            android:id="@+id/refresh_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="12dp"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/textViewDailyNotification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relativeLayoutAutomaticRefresh"
+        android:layout_marginTop="16dp"
+        android:textSize="18sp"
+        android:layout_marginStart="8dp"
+        android:text="DAILY NOTIFICATION" />
+
+    <RelativeLayout
+        android:id="@+id/relativeLayoutSelectPreferredTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textViewDailyNotification"
+        android:background="#ffffff"
+        android:layout_marginTop="16dp" >
+
+        <TextView
+            android:id="@+id/textViewSelectPreferredTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:text="Select Preferred Time"
+            android:layout_marginTop="16dp"
+            android:textSize="18sp"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/textViewTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="16dp"
+            android:textSize="18sp"
+            android:layout_marginStart="8dp"
+            android:text="3:12 PM"/>
+
+    </RelativeLayout>
+
+        </RelativeLayout>
+
+        <com.google.android.material.navigation.NavigationView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:itemTextAppearance="@style/DrawerTheme"
+            app:theme="@style/DrawerTheme"
+            android:id="@+id/navmenu"
+            app:menu="@menu/iconmenu"
+            android:fitsSystemWindows="true"
+            app:headerLayout="@layout/header"
+            android:backgroundTint="#F1EEEE"
+            app:itemBackground="@drawable/nav_item_background"
+            app:itemTextColor="#525557"
+            app:itemIconTint="#525557"
+            android:layout_gravity="start"/>
+
+
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+
+
+</RelativeLayout>

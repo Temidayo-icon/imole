@@ -9,28 +9,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Imole">
-
+        <activity
+            android:name=".settings"
+            android:exported="false" />
+        <activity
+            android:name=".power_control"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true">
-
-        </activity>
-
+            android:exported="true" />
         <activity
             android:name=".splash_screen"
             android:exported="true"
             android:theme="@style/SplashScreen">
             <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-
-                <!--Main Launcher Activity-->
-                <category
-                    android:name="android.intent.category.LAUNCHER" />
+                <!-- Main Launcher Activity -->
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>
