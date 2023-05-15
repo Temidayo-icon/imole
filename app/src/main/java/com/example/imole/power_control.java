@@ -28,7 +28,7 @@ import com.google.android.material.navigation.NavigationView;
 public class power_control extends AppCompatActivity  {
 
 
-    private final String phoneNumber = "+2349159774476"; // Replace with your GSM module phone number
+    private final String phoneNumber = "+2349116983292"; // Replace with your GSM module phone number
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
 

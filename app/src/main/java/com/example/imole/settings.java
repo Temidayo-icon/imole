@@ -8,6 +8,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.Window;
@@ -34,10 +35,27 @@ public class settings extends AppCompatActivity {
     TextView timetext;
     TextView charttint;
     TextView sctc;
-    EditText enterkwhp;
+    private EditText enterkwhp;
     EditText entertp;
     Switch autorefreshbut;
     DrawerLayout drawerLayout;
+
+
+    private void savePowerPurchasedValue(double powerPurchased) {
+        // Save the power purchased value to SharedPreferences or any other storage mechanism
+        SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putFloat("powerPurchased", (float) powerPurchased);
+        editor.apply();
+    }
+    private void onPowerPurchasedValueChanged() {
+        String powerPurchasedStr = enterkwhp.getText().toString();
+        double powerPurchased = Double.parseDouble(powerPurchasedStr);
+
+        // Save the power purchased value
+        savePowerPurchasedValue(powerPurchased);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
