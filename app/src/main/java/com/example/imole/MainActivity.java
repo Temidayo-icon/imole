@@ -1,12 +1,5 @@
 package com.example.imole;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -19,6 +12,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -30,8 +29,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Timer;
@@ -55,6 +52,7 @@ public class MainActivity extends AppCompatActivity   {
 
 
     private double powerPurchased;
+    private double threshold;
     private ArrayList<Double>powerValues;
     private ArrayList<Long> timestamps;
     private Handler handler;
@@ -93,6 +91,12 @@ public class MainActivity extends AppCompatActivity   {
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         powerPurchased = preferences.getFloat("powerPurchased", 0.0f);
 
+        // Retrieve the threshold value from SharedPreferences
+        SharedPreferences preference = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        threshold = preference.getFloat("threshold", 0.0f);
+
+
+
 
         Window window = getWindow();
         // Show status bar
@@ -126,6 +130,37 @@ public class MainActivity extends AppCompatActivity   {
 
         nav.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                Intent intent;
+                switch (menuItem.getItemId())
+                {
+                    case R.id.menu_home:
+                        intent = new Intent(MainActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        Toast.makeText(getApplicationContext(),"Energy monitor is Open",Toast.LENGTH_LONG).show();
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                        break;
+
+                    case R.id.menu_contol :
+                        intent = new Intent(MainActivity.this, power_control.class);
+                        startActivity(intent);
+                        Toast.makeText(getApplicationContext(),"power control is Open",Toast.LENGTH_LONG).show();
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                        break;
+
+                    case R.id.menu_setting :
+                        intent = new Intent(MainActivity.this, settings.class);
+                        startActivity(intent);
+                        Toast.makeText(getApplicationContext(),"Setting Panel is Open",Toast.LENGTH_LONG).show();
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                        break;
+                }
+                return true;
+            }
+        });
+
+       /* nav.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem)
             {
                 Intent intent;
@@ -155,7 +190,7 @@ public class MainActivity extends AppCompatActivity   {
 
                 return true;
             }
-        });
+        }); */
 
 
     }
@@ -340,5 +375,6 @@ public class MainActivity extends AppCompatActivity   {
         double availableBalance = powerPurchased - PowerConsumption;
         availkwh.setText(String.format(Locale.getDefault(), "%.2f kWh", availableBalance));
     }
+
 
 }

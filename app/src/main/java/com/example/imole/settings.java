@@ -1,12 +1,5 @@
 package com.example.imole;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,6 +10,12 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -36,7 +35,7 @@ public class settings extends AppCompatActivity {
     TextView charttint;
     TextView sctc;
     private EditText enterkwhp;
-    EditText entertp;
+    private EditText entertp;
     Switch autorefreshbut;
     DrawerLayout drawerLayout;
 
@@ -55,6 +54,23 @@ public class settings extends AppCompatActivity {
         // Save the power purchased value
         savePowerPurchasedValue(powerPurchased);
     }
+
+    private void savethresholdValue(double threshold) {
+        // Save the power purchased value to SharedPreferences or any other storage mechanism
+        SharedPreferences preference = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preference.edit();
+        editor.putFloat("threshold", (float) threshold);
+        editor.apply();
+    }
+
+    private void onthresholdValueChanged() {
+        String thresholdStr = entertp.getText().toString();
+        double threshold = Double.parseDouble(thresholdStr);
+
+        // Save the power purchased value
+        savethresholdValue(threshold);
+    }
+
 
 
     @Override
@@ -95,7 +111,7 @@ public class settings extends AppCompatActivity {
 
         nav.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem)
+            public boolean onNavigationItemSelected(MenuItem menuItem)
             {
                 Intent intent;
                 switch (menuItem.getItemId())
