@@ -1,9 +1,11 @@
 package com.example.imole;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -23,16 +25,23 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity   {
 
@@ -53,6 +62,7 @@ public class MainActivity extends AppCompatActivity   {
 
     private double powerPurchased;
     private double threshold;
+    private long latestPowerPurchaseTimestamp;
     private ArrayList<Double>powerValues;
     private ArrayList<Long> timestamps;
     private Handler handler;
@@ -85,7 +95,8 @@ public class MainActivity extends AppCompatActivity   {
 
         mHandler.post(mRunnable); // start updating UI every 5 seconds
 
-        // Initialize the Volley request queue
+        powerPurchased = loadPowerPurchaseValue();
+        latestPowerPurchaseTimestamp = loadLatestPowerPurchaseTimestamp();
 
         // Retrieve the power purchased value from SharedPreferences
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
@@ -159,6 +170,15 @@ public class MainActivity extends AppCompatActivity   {
             }
         });
 
+        FirebaseMessaging.getInstance().subscribeToTopic("energy_notifications")
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("TAG", "Subscribed to topic: energy_notifications");
+                    } else {
+                        Log.w("TAG", "Failed to subscribe to topic: energy_notifications", task.getException());
+                    }
+                });
+
        /* nav.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem)
@@ -200,22 +220,32 @@ public class MainActivity extends AppCompatActivity   {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
                     try {
-                        JSONArray jsonArray = response.getJSONArray("results");
+                        JSONArray jsonArray = response.getJSONArray("");
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
                             Double powerValue = jsonObject.getDouble("power");
-                            Long timestamp = jsonObject.getLong("created_at");
+                            String timestamp = jsonObject.getString("timestamp");
+
+                            // Convert the timestamp string to a Date object
+                            Date timestampDate = dateFormat.parse(timestamp);
+
+                            // Convert the Date object to milliseconds
+                            long timestampMillis = timestampDate.getTime();
+                            // Convert milliseconds to hours
+                            long hours = TimeUnit.MILLISECONDS.toHours(timestampMillis);
 
                             // Add the values to the ArrayLists
                             powerValues.add(powerValue);
-                            timestamps.add(timestamp);
+                            timestamps.add(hours);
                         }
 
                         // Update the UI with the new data
                         updateUI(powerValues, timestamps);
 
-                    } catch (JSONException e) {
+                    } catch (JSONException | ParseException e) {
                         e.printStackTrace();
                     }
                 }, error -> {
@@ -288,6 +318,8 @@ public class MainActivity extends AppCompatActivity   {
                 totalPower += energy;
             }
         }
+
+
 
         return totalPower;
     }
@@ -374,7 +406,134 @@ public class MainActivity extends AppCompatActivity   {
 
         double availableBalance = powerPurchased - PowerConsumption;
         availkwh.setText(String.format(Locale.getDefault(), "%.2f kWh", availableBalance));
+
+        if (availableBalance <= threshold) {
+            // Create the notification message
+            RemoteMessage notification = new RemoteMessage.Builder("energy_notifications")
+                    .setMessageId(String.valueOf(System.currentTimeMillis()))
+                    .addData("title", "LOW ENERGY BALANCE")
+                    .addData("body", "Your energy balance is low. Please recharge and conserve energy until the next recharge by switching off appliances")
+                    .build();
+
+            // Send the notification
+            FirebaseMessaging.getInstance().send(notification);
+
+
+
+        }
+
     }
+
+    private double loadPowerPurchaseValue() {
+        SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        powerPurchased = preferences.getFloat("powerPurchased", 0.0f);
+        return preferences.getFloat("PowerPurchaseValue", 0.0f);
+    }
+
+    private long loadLatestPowerPurchaseTimestamp() {
+        SharedPreferences sharedPreferences = getSharedPreferences("AppPreferences", Context.MODE_PRIVATE);
+        return sharedPreferences.getLong("LatestPowerPurchaseTimestamp", 0L);
+    }
+
+    private void savePowerPurchaseValue(double powerPurchase) {
+        SharedPreferences Preferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = Preferences.edit();
+        editor.putFloat("PowerPurchaseValue", (float) powerPurchase);
+        editor.apply();
+    }
+
+    private void saveLatestPowerPurchaseTimestamp(long timestamp) {
+        SharedPreferences sharedPreferences = getSharedPreferences("AppPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong("LatestPowerPurchaseTimestamp", timestamp);
+        editor.apply();
+    }
+
+
+    // Method to handle user input when a new power purchase value is entered
+    void handleNewPowerPurchaseValue(double newPowerPurchase) {
+
+        powerPurchased = newPowerPurchase;
+
+        // Get the current timestamp
+        long currentTimestamp = System.currentTimeMillis();
+
+        // Save the current timestamp as the latest power purchase timestamp
+        latestPowerPurchaseTimestamp = currentTimestamp;
+        saveLatestPowerPurchaseTimestamp(currentTimestamp);
+
+        // Clear the powerValues and timestamps arrays
+        powerValues.clear();
+        timestamps.clear();
+
+        // Fetch the power and timestamp values from the web server again
+        startFetchingData();
+    }
+
+
+   /* private void fetchDataFromAPI(String powerPurchasedTimestamp) {
+        String url = "https://dayofinalproject.herokuapp.com/data/" + powerPurchasedTimestamp + "/";
+
+        // Get the current timestamp
+        long currentTimestamp = System.currentTimeMillis();
+
+        // Save the current timestamp as the latest power purchase timestamp
+        latestPowerPurchaseTimestamp = currentTimestamp;
+        saveLatestPowerPurchaseTimestamp(currentTimestamp);
+
+        // Create a new RequestQueue instance
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        // Create a new JsonObjectRequest with GET method
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray jsonArray = response.getJSONArray("");
+
+                            // Clear the powerValues and timestamps arrays
+                            powerValues.clear();
+                            timestamps.clear();
+
+                            // Iterate through the JSON array to extract power and timestamp values
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                                // Extract timestamp value
+                                String timestamp = jsonObject.getString("timestamp");
+
+                                // Check if the timestamp is greater than or equal to powerPurchasedTimestamp
+                                if (timestamp.compareTo(latestPowerPurchaseTimestamp) >= 0) {
+                                    // Extract power value
+                                    double power = jsonObject.getDouble("power");
+
+                                    // Add power and timestamp values to the arrays
+                                    powerValues.add(power);
+                                    timestamps.add(timestamp);
+                                }
+                            }
+
+                            // Update the UI with the fetched data
+                            updateUI();
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                });
+
+        // Add the request to the RequestQueue
+        queue.add(jsonObjectRequest);
+    } */
+
+
 
 
 }
