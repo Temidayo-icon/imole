@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity   {
     private long latestPowerPurchaseTimestamp;
     private ArrayList<Double>powerValues;
     private ArrayList<Long> timestamps;
+    private ArrayList<Double> energyValues = new ArrayList<>();
     private Handler handler;
     private HashMap<String, ArrayList<Double>> dailyPowerReadings = new HashMap<>();
     private double totalPowerToday = 0;
@@ -316,6 +317,8 @@ public class MainActivity extends AppCompatActivity   {
                 long interval = intervals.get(i);
                 double energy = (power1 + power2) / 2 * interval / 3600 / 1000; // Convert to kWh
                 totalPower += energy;
+
+                energyValues.add(totalPower);
             }
         }
 
@@ -469,6 +472,37 @@ public class MainActivity extends AppCompatActivity   {
         // Fetch the power and timestamp values from the web server again
         startFetchingData();
     }
+    void filterTimestampsAndPowerValues() {
+
+        // Get the current timestamp
+        long currentTimestamp = System.currentTimeMillis();
+
+        // Save the current timestamp as the latest power purchase timestamp
+        saveLatestPowerPurchaseTimestamp(currentTimestamp);
+
+
+
+        // Create new ArrayLists to store the filtered values
+        ArrayList<Long> filteredTimestamps = new ArrayList<>();
+        ArrayList<Double> filteredPowerValues = new ArrayList<>();
+
+        // Iterate through the existing arrays and filter the values
+        for (int i = 0; i < timestamps.size(); i++) {
+            long timestamp = timestamps.get(i);
+            if (timestamp >= currentTimestamp) {
+                // Add the timestamp and power value to the filtered arrays
+                filteredTimestamps.add(timestamp);
+                filteredPowerValues.add(powerValues.get(i));
+            }
+        }
+
+        // Replace the existing arrays with the filtered arrays
+        timestamps = filteredTimestamps;
+        powerValues = filteredPowerValues;
+
+        calculatePowerConsumption(powerValues, timestamps);
+    }
+
 
 
    /* private void fetchDataFromAPI(String powerPurchasedTimestamp) {
@@ -533,7 +567,17 @@ public class MainActivity extends AppCompatActivity   {
         queue.add(jsonObjectRequest);
     } */
 
-
+  /*  private void filterTimestampsAndPowerValues(long powerPurchasedTimestamp) {
+        // Iterate through the existing arrays and remove values that are less than the power purchased timestamp
+        for (int i = timestamps.size() - 1; i >= 0; i--) {
+            long timestamp = timestamps.get(i);
+            if (timestamp < powerPurchasedTimestamp) {
+                // Remove the timestamp and corresponding power value
+                timestamps.remove(i);
+                powerValues.remove(i);
+            }
+        }
+    }*/
 
 
 }

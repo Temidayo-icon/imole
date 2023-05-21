@@ -188,6 +188,7 @@ public class settings extends AppCompatActivity {
                 // Call the method in MainActivity to handle the new power purchase value
                 MainActivity mainActivity = (MainActivity) getParent();
                 mainActivity.handleNewPowerPurchaseValue(newPowerPurchase);
+                mainActivity.filterTimestampsAndPowerValues();
 
                 // Finish the SettingsActivity
                 finish();
