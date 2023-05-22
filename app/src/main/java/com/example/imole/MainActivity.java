@@ -1,5 +1,7 @@
 package com.example.imole;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,6 +37,7 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -72,6 +75,9 @@ public class MainActivity extends AppCompatActivity   {
     private long todayInMillis = 0;
     private final int delay = 60000; // 1 minute delay for updating chart
     private Handler mHandler = new Handler();
+    private static MainActivity instance;
+
+
     private Runnable mRunnable = new Runnable() {
 
         @Override
@@ -139,6 +145,11 @@ public class MainActivity extends AppCompatActivity   {
         toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.white));
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
+        instance = this; // Assign the instance
+
+        // Schedule the daily notification at 10 PM
+        scheduleDailyNotification(this);
 
         nav.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -215,6 +226,23 @@ public class MainActivity extends AppCompatActivity   {
 
 
     }
+
+    public static MainActivity getInstance() {
+        return instance;
+    }
+
+    public double getTextViewValue() {
+        String text = put.getText().toString();
+        double value = 0.0;
+        try {
+            value = Double.parseDouble(text);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            // Handle the case where the text cannot be parsed as a double
+        }
+        return value;
+    }
+
     private void fetchData() {
         String url = "https://dayofinalproject.herokuapp.com/api/get";
 
@@ -381,17 +409,20 @@ public class MainActivity extends AppCompatActivity   {
         // Update the daily power consumption text view
         put.setText(String.format(Locale.getDefault(), "%.2f", dailyPowerConsumption));
     } */
-    private double calculateDailyConsumption(double startPower, double endPower, long startTime, long endTime) {
+     double calculateDailyConsumption(double startPower, double endPower, long startTime, long endTime) {
         double timeDiff = (endTime - startTime) / 3600000.0; // convert milliseconds to hours
         return ((startPower + endPower) / 2.0) * timeDiff / 1000.0; // trapezoidal rule formula
     }
    private double dailyPower = 0.0;
     private long currentDayMillis = 0L;
 
-    private void calculateDailyPowerConsumption() {
+     void calculateDailyPowerConsumption() {
         long currentTimeMillis = System.currentTimeMillis();
         double currentPower = 0.0;
         for (int i = 0; i < powerValues.size() - 1; i++) {
+            long hours = timestamps.get(i);
+            long milliseconds = TimeUnit.MILLISECONDS.convert(hours, TimeUnit.HOURS);
+            timestamps.set(i, milliseconds);
             if (timestamps.get(i) >= currentDayMillis && timestamps.get(i + 1) <= currentTimeMillis) {
                 currentPower += calculateDailyConsumption(powerValues.get(i), powerValues.get(i + 1), timestamps.get(i), timestamps.get(i + 1));
             }
@@ -406,6 +437,9 @@ public class MainActivity extends AppCompatActivity   {
     public void updateAvailableBalance() {
         // Calculate the total power consumption
         double PowerConsumption = calculatePowerConsumption(powerValues, timestamps);
+
+        powerPurchased =loadPowerPurchaseValue();
+        threshold=loadThresholdValue();
 
         double availableBalance = powerPurchased - PowerConsumption;
         availkwh.setText(String.format(Locale.getDefault(), "%.2f kWh", availableBalance));
@@ -430,55 +464,38 @@ public class MainActivity extends AppCompatActivity   {
     private double loadPowerPurchaseValue() {
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         powerPurchased = preferences.getFloat("powerPurchased", 0.0f);
-        return preferences.getFloat("PowerPurchaseValue", 0.0f);
+        return preferences.getFloat("PowerPurchased", 0.0f);
+    }
+
+    private double loadThresholdValue() {
+        SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        powerPurchased = preferences.getFloat("threshold", 0.0f);
+        return preferences.getFloat("threshold", 0.0f);
     }
 
     private long loadLatestPowerPurchaseTimestamp() {
-        SharedPreferences sharedPreferences = getSharedPreferences("AppPreferences", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         return sharedPreferences.getLong("LatestPowerPurchaseTimestamp", 0L);
     }
 
-    private void savePowerPurchaseValue(double powerPurchase) {
-        SharedPreferences Preferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = Preferences.edit();
-        editor.putFloat("PowerPurchaseValue", (float) powerPurchase);
-        editor.apply();
-    }
+
 
     private void saveLatestPowerPurchaseTimestamp(long timestamp) {
-        SharedPreferences sharedPreferences = getSharedPreferences("AppPreferences", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putLong("LatestPowerPurchaseTimestamp", timestamp);
         editor.apply();
     }
 
 
-    // Method to handle user input when a new power purchase value is entered
-    void handleNewPowerPurchaseValue(double newPowerPurchase) {
 
-        powerPurchased = newPowerPurchase;
-
-        // Get the current timestamp
-        long currentTimestamp = System.currentTimeMillis();
-
-        // Save the current timestamp as the latest power purchase timestamp
-        latestPowerPurchaseTimestamp = currentTimestamp;
-        saveLatestPowerPurchaseTimestamp(currentTimestamp);
-
-        // Clear the powerValues and timestamps arrays
-        powerValues.clear();
-        timestamps.clear();
-
-        // Fetch the power and timestamp values from the web server again
-        startFetchingData();
-    }
     void filterTimestampsAndPowerValues() {
 
         // Get the current timestamp
-        long currentTimestamp = System.currentTimeMillis();
+
 
         // Save the current timestamp as the latest power purchase timestamp
-        saveLatestPowerPurchaseTimestamp(currentTimestamp);
+        long currentTimestamp =loadLatestPowerPurchaseTimestamp();
 
 
 
@@ -503,69 +520,26 @@ public class MainActivity extends AppCompatActivity   {
         calculatePowerConsumption(powerValues, timestamps);
     }
 
+    private void scheduleDailyNotification(Context context) {
+        // Create a Calendar instance for 10 PM
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 22);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        // Set up the Intent and PendingIntent for the notification
+        Intent notificationIntent = new Intent(context, MyNotificationReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-   /* private void fetchDataFromAPI(String powerPurchasedTimestamp) {
-        String url = "https://dayofinalproject.herokuapp.com/data/" + powerPurchasedTimestamp + "/";
+        // Set up the AlarmManager to schedule the notification
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+    }
 
-        // Get the current timestamp
-        long currentTimestamp = System.currentTimeMillis();
 
-        // Save the current timestamp as the latest power purchase timestamp
-        latestPowerPurchaseTimestamp = currentTimestamp;
-        saveLatestPowerPurchaseTimestamp(currentTimestamp);
 
-        // Create a new RequestQueue instance
-        RequestQueue queue = Volley.newRequestQueue(this);
 
-        // Create a new JsonObjectRequest with GET method
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray jsonArray = response.getJSONArray("");
-
-                            // Clear the powerValues and timestamps arrays
-                            powerValues.clear();
-                            timestamps.clear();
-
-                            // Iterate through the JSON array to extract power and timestamp values
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                                // Extract timestamp value
-                                String timestamp = jsonObject.getString("timestamp");
-
-                                // Check if the timestamp is greater than or equal to powerPurchasedTimestamp
-                                if (timestamp.compareTo(latestPowerPurchaseTimestamp) >= 0) {
-                                    // Extract power value
-                                    double power = jsonObject.getDouble("power");
-
-                                    // Add power and timestamp values to the arrays
-                                    powerValues.add(power);
-                                    timestamps.add(timestamp);
-                                }
-                            }
-
-                            // Update the UI with the fetched data
-                            updateUI();
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                    }
-                });
-
-        // Add the request to the RequestQueue
-        queue.add(jsonObjectRequest);
-    } */
 
   /*  private void filterTimestampsAndPowerValues(long powerPurchasedTimestamp) {
         // Iterate through the existing arrays and remove values that are less than the power purchased timestamp

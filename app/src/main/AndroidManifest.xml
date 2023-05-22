@@ -41,6 +41,10 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT"></action>
             </intent-filter>
         </service>
+        <receiver
+            android:name=".MyNotificationReceiver"
+            android:enabled="true"
+            android:exported="true" />
     </application>
 
 </manifest>

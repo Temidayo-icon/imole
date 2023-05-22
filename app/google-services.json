@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "974208326019",
+    "project_id": "imole-8f603",
+    "storage_bucket": "imole-8f603.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:974208326019:android:928a888c2118cad5523eb6",
+        "android_client_info": {
+          "package_name": "com.example.imole"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "974208326019-7p4b0q5dhs5s1q3arngd5p8ed2pjqcop.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.imole",
+            "certificate_hash": "dc9c71ad49bb197ec7c680852e87421de3225219"
+          }
+        },
+        {
+          "client_id": "974208326019-mo0cfhpqbrj26lr0t394e7ned44o8kvp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpltpsY0rqBjP5YyyQrezWAkl7LyYB60k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "974208326019-mo0cfhpqbrj26lr0t394e7ned44o8kvp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

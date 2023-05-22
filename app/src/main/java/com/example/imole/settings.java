@@ -50,6 +50,14 @@ public class settings extends AppCompatActivity {
         editor.putFloat("powerPurchased", (float) powerPurchased);
         editor.apply();
     }
+
+    private void savePowerPurchasedTimestamp(long currentTimestamps) {
+        // Save the power purchased value to SharedPreferences or any other storage mechanism
+        SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putLong("currentTimestamps", (long) currentTimestamps);
+        editor.apply();
+    }
     private void onPowerPurchasedValueChanged() {
         String powerPurchasedStr = enterkwhp.getText().toString();
         double powerPurchased = Double.parseDouble(powerPurchasedStr);
@@ -182,13 +190,21 @@ public class settings extends AppCompatActivity {
                 onPowerPurchasedValueChanged();
                 updatePowerPurchased();
 
-                // Get the new power purchase value from the EditText
-                double newPowerPurchase = Double.parseDouble(enterkwhp.getText().toString());
+                long currentTimestamp = System.currentTimeMillis();
+
+                savePowerPurchasedTimestamp(currentTimestamp);
+
+
+
+                // Call the method in MainActivity to handle the new power purchase value
+
+
+
 
                 // Call the method in MainActivity to handle the new power purchase value
                 MainActivity mainActivity = (MainActivity) getParent();
-                mainActivity.handleNewPowerPurchaseValue(newPowerPurchase);
                 mainActivity.filterTimestampsAndPowerValues();
+
 
                 // Finish the SettingsActivity
                 finish();
