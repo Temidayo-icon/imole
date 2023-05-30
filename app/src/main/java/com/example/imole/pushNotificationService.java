@@ -9,8 +9,11 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -19,22 +22,28 @@ public class pushNotificationService extends FirebaseMessagingService {
 
 
         @Override
-        public void onMessageReceived( RemoteMessage remoteMessage) {
+        public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
+
+           Task<String> token= FirebaseMessaging.getInstance().getToken();
+
+
+
+
             // Handle the incoming message here
             if (remoteMessage.getNotification() != null) {
                 String title = remoteMessage.getNotification().getTitle();
                 String body = remoteMessage.getNotification().getBody();
                 // Handle the notification as desired (e.g., show a system notification)
-                showNotification(title, body);
+                showNotification(title, body, token);
             }
         }
 
-        private void showNotification(String title, String body) {
+        private void showNotification(String title, String body, Task<String> token) {
             // Create a notification channel (required for Android 8.0 and above)
             createNotificationChannel();
             Intent notificationIntent = new Intent(this, MainActivity.class);
             notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
             // Create the notification channel (for Android Oreo and above)
 
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

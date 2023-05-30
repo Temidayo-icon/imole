@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -26,6 +27,15 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
@@ -61,6 +71,7 @@ public class MainActivity extends AppCompatActivity   {
     TextView tc;
     TextView tpc;
     View graphView;
+    LineChart lineChart;
 
 
     private double powerPurchased;
@@ -68,11 +79,11 @@ public class MainActivity extends AppCompatActivity   {
     private long latestPowerPurchaseTimestamp;
     private ArrayList<Double>powerValues;
     private ArrayList<Long> timestamps;
-    private ArrayList<Double> energyValues = new ArrayList<>();
+    private final ArrayList<Double> energyValues = new ArrayList<>();
     private Handler handler;
-    private HashMap<String, ArrayList<Double>> dailyPowerReadings = new HashMap<>();
-    private double totalPowerToday = 0;
-    private long todayInMillis = 0;
+    private final HashMap<String, ArrayList<Double>> dailyPowerReadings = new HashMap<>();
+    private final double totalPowerToday = 0;
+    private final long todayInMillis = 0;
     private final int delay = 60000; // 1 minute delay for updating chart
     private Handler mHandler = new Handler();
     private static MainActivity instance;
@@ -86,6 +97,7 @@ public class MainActivity extends AppCompatActivity   {
             startFetchingData();
             calculateDailyPowerConsumption();
             updateAvailableBalance();
+            lineChart.invalidate();
             mHandler.postDelayed(this, 5000); // run again in 5 seconds
         }
     };
@@ -114,6 +126,10 @@ public class MainActivity extends AppCompatActivity   {
         threshold = preference.getFloat("threshold", 0.0f);
 
 
+        PowerConsumptionNotificationScheduler.scheduleDailyNotification(this);
+
+
+
 
 
         Window window = getWindow();
@@ -128,6 +144,7 @@ public class MainActivity extends AppCompatActivity   {
         setSupportActionBar(toolbar);
         toolbar.setTitleTextColor(getResources().getColor(R.color.white));
 
+
         nav=(NavigationView)findViewById(R.id.navmenu);
         drawerLayout=(DrawerLayout)findViewById(R.id.drawer);
         instantButton = findViewById(R.id.instantaneous_button);
@@ -140,6 +157,9 @@ public class MainActivity extends AppCompatActivity   {
         tc =findViewById(R.id.total_consumption_textview);
         tpc =findViewById(R.id.total_power_consumption_textview);
         graphView =findViewById(R.id.graph_view);
+        // Inside your MainActivity or relevant activity
+        LineChart lineChart = findViewById(R.id.graph_view);
+
 
         toggle=new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.open,R.string.close);
         toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.white));
@@ -153,7 +173,7 @@ public class MainActivity extends AppCompatActivity   {
 
         nav.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public boolean onNavigationItemSelected(MenuItem menuItem) {
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 Intent intent;
                 switch (menuItem.getItemId())
                 {
@@ -191,40 +211,82 @@ public class MainActivity extends AppCompatActivity   {
                     }
                 });
 
-       /* nav.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+
+        cumButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem)
-            {
-                Intent intent;
-                switch (menuItem.getItemId())
-                {
-                    case R.id.menu_home:
-                        intent = new Intent(MainActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        Toast.makeText(getApplicationContext(),"Energy monitor is Open",Toast.LENGTH_LONG).show();
-                        drawerLayout.closeDrawer(GravityCompat.START);
-                        break;
+            public void onClick(View view) {
 
-                    case R.id.menu_contol :
-                        intent = new Intent(MainActivity.this, power_control.class);
-                        startActivity(intent);
-                        Toast.makeText(getApplicationContext(),"power control is Open",Toast.LENGTH_LONG).show();
-                        drawerLayout.closeDrawer(GravityCompat.START);
-                        break;
-
-                    case R.id.menu_setting :
-                        intent = new Intent(MainActivity.this, settings.class);
-                        startActivity(intent);
-                        Toast.makeText(getApplicationContext(),"Setting Panel is Open",Toast.LENGTH_LONG).show();
-                        drawerLayout.closeDrawer(GravityCompat.START);
-                        break;
+                // Create an ArrayList of Entry objects to hold your data points
+                ArrayList<Entry> entries = new ArrayList<>();
+// Populate the entries array with your energy in kWh values
+                for (int i = 0; i < energyValues.size(); i++) {
+                    double energyValue = energyValues.get(i); // Assuming energyArray is your array of energy in kWh
+                    entries.add(new Entry(i, (float) energyValue));
                 }
 
-                return true;
+                // Create a LineDataSet from the entries
+                LineDataSet dataSet = new LineDataSet(entries, "Energy Consumption");
+
+                // Customize the appearance of the line dataset
+                dataSet.setColor(ColorTemplate.MATERIAL_COLORS[0]);
+                dataSet.setLineWidth(2f);
+                dataSet.setDrawCircles(false);
+
+                // Create an ArrayList of ILineDataSet to hold the line dataset
+                ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+                dataSets.add(dataSet);
+
+                // Create a LineData object from the line datasets
+                LineData lineData = new LineData(dataSets);
+
+// Set the LineData to the chart
+                lineChart.setData(lineData);
+
+                // Configure the X-axis
+                XAxis xAxis = lineChart.getXAxis();
+                xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                xAxis.setDrawGridLines(false);
+                xAxis.setValueFormatter((value, axis) -> {
+                    // Convert the value to the corresponding timestamp label
+                    int index = (int) value;
+                    long timestamp = timestamps.get(index); // Assuming timestampsArray is your array of timestamps
+                    // Convert the timestamp to a suitable format (e.g., using SimpleDateFormat)
+                    return convertTimestampToString(timestamp);
+                });
+
+// Configure the Y-axis
+                YAxis leftAxis = lineChart.getAxisLeft();
+                leftAxis.setDrawGridLines(false);
+                leftAxis.setGranularity(0.02f); // Set the scale for Y-axis to 0.02 kWh
+                leftAxis.setAxisMinimum(0f); // Set the minimum value for Y-axis
+                leftAxis.setAxisMaximum(0.5f); // Set the maximum value for Y-axis
+
+                // Configure the chart description
+                Description description = new Description();
+                description.setText(""); // Set an empty description
+                lineChart.setDescription(description);
+
+// Refresh the chart to update its display
+                lineChart.invalidate();
+
+
+
             }
-        }); */
+        });
 
 
+
+    }
+
+    private String convertTimestampToString(long timestamp) {
+        // Create a SimpleDateFormat instance with the desired format
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+        // Convert the timestamp to a Date object
+        Date date = new Date(timestamp);
+
+        // Format the Date object to a string representation
+        return sdf.format(date);
     }
 
     public static MainActivity getInstance() {
@@ -250,7 +312,7 @@ public class MainActivity extends AppCompatActivity   {
                 response -> {
                     try {
                         JSONArray jsonArray = response.getJSONArray("");
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",Locale.US);
                         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
                         for (int i = 0; i < jsonArray.length(); i++) {
@@ -454,6 +516,7 @@ public class MainActivity extends AppCompatActivity   {
 
             // Send the notification
             FirebaseMessaging.getInstance().send(notification);
+
 
 
 

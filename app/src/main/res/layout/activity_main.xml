@@ -89,15 +89,21 @@
 
     </LinearLayout>
 
-    <!-- Graph View -->
-    <View
-        android:id="@+id/graph_view"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_below="@id/buttons_layout"
-        android:background="#FFFFFF"/>
+            <!-- Graph View -->
 
-    <!-- Current Power Consumption TextView -->
+            <com.github.mikephil.charting.charts.LineChart
+
+                android:id="@+id/graph_view"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_below="@id/buttons_layout"
+                android:background="#FFFFFF" />
+
+
+
+
+
+            <!-- Current Power Consumption TextView -->
     <TextView
         android:id="@+id/current_power_consumption_textview"
         android:layout_width="wrap_content"

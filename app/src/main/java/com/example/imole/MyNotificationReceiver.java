@@ -33,6 +33,8 @@ public class MyNotificationReceiver extends BroadcastReceiver {
 
         // Send the notification using Firebase Cloud Messaging
         sendNotificationToFirebase(context, title, message);
+
+
     }
 
 
@@ -76,6 +78,8 @@ public class MyNotificationReceiver extends BroadcastReceiver {
         RequestQueue queue = Volley.newRequestQueue(context);
         queue.add(request);
     }
+
+
 
 
 }
